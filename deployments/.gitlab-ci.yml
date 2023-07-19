@@ -1,0 +1,77 @@
+variables:
+  DOCKER_TLS_VERIFY: "1"
+  DOCKER_CERT_PATH: ".docker"
+  GIT_DEPTH: "1"
+
+# DEPLOY COMMON
+
+.set_docker_registry_vars: &set_docker_registry_vars |
+  echo "Setting up docker registry variables"
+
+  export CI_APPLICATION_REPOSITORY=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
+  export CI_APPLICATION_TAG=$CI_COMMIT_SHA
+
+# RELEASE TO DOCKER REGISTRY
+
+.docker_build_n_push: &docker_build_n_push |
+  echo "Build and push docker image from Dockerfile with kaniko docker executor"
+  echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+  /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" --destination "$CI_APPLICATION_REPOSITORY:latest"
+
+.kaniko_release_stage:
+  stage: release
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - *set_docker_registry_vars
+  script:
+    - *docker_build_n_push
+  cache: {}
+
+.deploy-docker-compose:
+  stage: deploy
+  image:
+    name: docker/compose:1.28.2
+    entrypoint: [""]
+  before_script:
+    - *set_docker_registry_vars
+    - mkdir -p $DOCKER_CERT_PATH
+  script:
+    - cp "$DOCKER_CA" $DOCKER_CERT_PATH/ca.pem
+    - cp "$DOCKER_CERT" $DOCKER_CERT_PATH/cert.pem
+    - cp "$DOCKER_KEY" $DOCKER_CERT_PATH/key.pem
+   # - cp "$ENV_CONFIG" deployments/.env
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker-compose -p ${CI_COMMIT_REF_SLUG}_${CI_PROJECT_NAME}_${CI_PROJECT_ID} -f deployments/docker-compose.yml pull
+    - docker-compose -p ${CI_COMMIT_REF_SLUG}_${CI_PROJECT_NAME}_${CI_PROJECT_ID} -f deployments/docker-compose.yml up --build -d
+  after_script:
+    - rm -rf $DOCKER_CERT_PATH
+  dependencies: []
+
+stages:
+  - release
+  - deploy
+
+release:
+  extends: .kaniko_release_stage
+  only:
+    refs:
+      - main
+      - develop
+
+deploy-to-prod:
+  extends: .deploy-docker-compose
+  environment:
+    name: prod
+  only:
+    refs:
+      - main
+
+deploy-to-dev:
+  extends: .deploy-docker-compose
+  environment:
+    name: dev
+  only:
+    refs:
+      - develop

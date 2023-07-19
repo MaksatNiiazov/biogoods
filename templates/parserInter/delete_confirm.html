@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+    <h1>Are you sure you want to delete #{{ object.id }}?</h1>
+        <div class="flexbox" style="display: flex; flex-wrap: wrap">
+    <form method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Delete" class="modalbtn" style="margin:5px">
+    </form>
+        <br>
+        <a href="{% url 'orders' %}"><button class="modalbtn" style="margin: 4px;">Cancel</button></a>
+        <br>
+    </div>
+    <br>
+    </div>
+{% endblock %}

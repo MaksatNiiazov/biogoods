@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load contact_info_tags %}
+{% get_contact_info as info %}
+{% block header_content %}
+<div class="header-content header-pages">
+<h1 class="namepage">Shopping cart</h1>
+</div>
+{% endblock %}
+{% block content %}
+    <!-- SECTION: Contact -->
+    <section class="info">
+        <div class="container content-cart">
+            {% for object in object_list %}
+            <div class="row">
+                    {% for products in object.products_in_order.all %}
+                        <div class="col-md-3">
+                            <div class="product">
+                                <div class="product-image">
+                                    {% for image in products.product.images.all %}
+                                        {% if forloop.first %}
+                                            <img src="{{ image.img.url }}" alt="" style="width: 100%; max-height: 100%;">
+                                        {% endif %}
+                                    {% endfor %}
+                                    <a href="{% url 'delete-from-order' products.id %}" class="removegoods"><i class="las la-times"></i></a></div>
+                                <div class="product-body">
+                                    <form class="formchange{{ products.id }}" action="{% url 'product-in-order-update' products.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <div class="product-name"><a href="{% url 'product-detail' products.product.id %}">{{ products.product.title }}</a></div>
+                                        <div class="producАt-desc">{{ products.product.description|truncatechars:30 }}</div>
+                                        <div class="select-count-cart">
+                                            <div class="number" data-step="1" data-min="1" data-max="100">
+                                                <input type="hidden" class="obj_id" value="{{ products.id }}" name="obj_id">
+                                                <input type="hidden" class="priceforone" value="{{ products.product.price }}">
+                                                <input class="number-text" type="text" name="count" value="{{ products.count }}">
+                                                <a href="#" class="number-minus">−</a>
+                                                <a href="#" class="number-plus">+</a>
+                                            </div>
+                                        </div>
+                                        <div class="goods-cost">{{ products.total_price }} $ </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+            </div>
+            <div class="row">
+                <div class="goods">
+                    <div class="mb-5">
+                        <div class="totalinfo">
+                            <div class="totalcost items_total"><b>Items: {{ object.items }}</b></div>
+                            <div class="totalcost"><b>Subtotal:</b>{{ object.subtotal }}</div>
+                            <div class="totalcost"><b>Estimated tax to be collected:</b>{{ object.tax }}</div>
+                            <div class="totalcost"><b>Discount:</b>{{ object.discount }}</div>
+                            <div class="totalcost price_total"><b>Grand Total: {{ object.grand_total }} $</b></div>
+                        </div>
+                    </div>
+                    <div class="mb-3 rightcart">
+                        <form action="{% url 'send-order' %}" method="POST", id="order_form">
+                        {% csrf_token %}
+                        <input type="hidden" name="order" value="{{ object.id }}">
+
+                        <div class="mb-3">
+                            <input type="hidden" name="first_name" value="{{ user.first_name }}">
+                        </div>
+                        <div class="mb-3">
+                            <input type="hidden" name="last_name" value="{{ user.last_name }}" >
+                        </div>
+                        <div class="mb-3">
+                            <input type="hidden" name="email" value="{{ user.email }}" >
+                        </div>
+                        <div class="mb-3">
+                            <input type="hidden" name="phone_number" value="{{ user.phone_number }}" >
+                        </div>
+                        <div class="mb-3">
+                            <input type="hidden" name="grand_total" value="{{ object.grand_total }}" >
+                        </div>
+                        <div class="mb-3">
+                            <input type="hidden" name="message" value='{% for product in object.products_in_order.all %}
+                            {{ product.product.title }}: {{ product.count }} / {{ product.total_price }}$,
+                            {% endfor %}'>
+                        </div>
+                        <div class="mb-3">
+                            <button id="btn" type="submit"  class="payment">Create an order</button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+<div id="popup" style="display: none;">
+        <button id="cancel">×</button>
+
+  <p>{{ info.cart_info_cart }}</p>
+  <div class="button-container">
+    <button id="ok">OK</button>
+  </div>
+</div>
+    </section>
+
+
+
+<script>
+const btn = document.getElementById("btn");
+const popup = document.getElementById("popup");
+const ok = document.getElementById("ok");
+const cancel = document.getElementById("cancel");
+const orderForm = document.getElementById("order_form");
+
+btn.addEventListener("click", function(event) {
+  event.preventDefault();
+  popup.style.display = "block";
+});
+
+ok.addEventListener("click", function() {
+  popup.style.display = "none";
+  orderForm.submit();
+});
+
+cancel.addEventListener("click", function() {
+  popup.style.display = "none";
+});
+</script>
+<style>
+#popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 5px 20px 10px;
+  border: 1px solid black;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+  border-radius: 5px;
+  width: 500px;
+  height: auto; /* Height can increase as needed */
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto; /* Pushes the buttons towards the bottom */
+  padding-top: 20px;
+  padding-bottom: 20px;
+
+}
+
+button#close {
+  position: absolute;
+  right: -3px;
+  top: -5px;
+  font-size: 20px;
+  background-color: transparent;
+  border: none;
+  color: black;
+}
+
+button.popup-button {
+  border: 2px solid #008041;
+  background-color: #008041;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+/* Make the popup responsive */
+@media only screen and (max-width: 600px) {
+  #popup {
+    width: 80%;
+    height: auto;
+  }
+}
+#ok{
+    border: 2px solid #008041;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #008041;
+    color: white;
+    font-size: 16px;
+    margin-left: 2px;
+    cursor: pointer;
+    width: 80px;
+}
+#cancel{
+    text-align: center;
+    border: none;
+    background-color: transparent;
+    margin-left: 95%;
+    font-size: 25px;
+}
+</style>
+
+    <script>
+const minusButtons = document.querySelectorAll('.number-minus');
+const plusButtons = document.querySelectorAll('.number-plus');
+const countInputs = document.querySelectorAll('.number-text');
+const priceForOneInputs = document.querySelectorAll('.priceforone');
+const totalCostDivs = document.querySelectorAll('.goods-cost');
+const totalItems = document.querySelector('.items_total b:first-of-type');
+const grandTotal = document.querySelector('.price_total b:last-of-type');
+const forms = document.querySelectorAll("form");
+
+let items = 0;
+let total = 0;
+
+for (let i = 0; i < minusButtons.length; i++) {
+  minusButtons[i].addEventListener('click', (e) => {
+    e.preventDefault();
+    let count = parseInt(countInputs[i].value);
+    if (count > 1) {
+      count -= 1;
+      countInputs[i].value = count;
+      totalCostDivs[i].innerHTML = count * parseInt(priceForOneInputs[i].value) + ' $';
+      updateTotal(count, i, e.target.closest("form"));
+    }
+  });
+
+  plusButtons[i].addEventListener('click', (e) => {
+    e.preventDefault();
+    let count = parseInt(countInputs[i].value);
+    count += 1;
+    countInputs[i].value = count;
+    totalCostDivs[i].innerHTML = count * parseInt(priceForOneInputs[i].value) + ' $';
+    updateTotal(count, i, e.target.closest("form"));
+  });
+}
+
+function updateTotal(count, i, form) {
+  let objIdInput = form.querySelector("input[name='obj_id']");
+  let csrfToken = form.querySelector("input[name='csrfmiddlewaretoken']").value;
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", form.action, true);
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.send("csrfmiddlewaretoken=" + csrfToken + "&obj_id=" + objIdInput.value + "&count=" + count );
+
+  xhr.onreadystatechange = function() {
+    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+      items = 0;
+      total = 0;
+      for (let i = 0; i < countInputs.length; i++) {
+        items += parseInt(countInputs[i].value);
+        total += parseInt(countInputs[i].value) * parseInt(priceForOneInputs[i].value);
+      }
+      totalItems.innerHTML = 'Items: ' + items;
+      grandTotal.innerHTML = 'Grand Total :' + total + ' $';
+    }
+  };
+}
+
+</script>
+
+<style>
+.changebtn{
+background-color: #FAF4F2;
+color: #3E1E02;
+padding: -3px 5px;
+border-radius: 5px;
+text-align: center;
+cursor: pointer;
+border: 1px #DDDDDD solid;
+}
+</style>
+
+{% endblock %}

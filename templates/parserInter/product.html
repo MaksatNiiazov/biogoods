@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load contact_info_tags static %}
+{% block content %}
+    {% get_contact_info as info %}
+
+    <!-- SECTION: Contact -->
+    <section class="info">
+        <div class="container content-contact">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="product-photos">
+                        <div class="big-photo">
+                            {% for images in object.images.all %}
+                                {% if forloop.first %}
+                                     <img src="{{ images.img.url }}" onclick="showModal('{{ images.img.url }}')" style="max-width: 100%; max-height: 100%">
+                                {% endif %}
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="photos-mini">
+                            {% for images in object.images.all %}
+                                {% if not forloop.first %}
+                                    <div class="mini-photo"><img src="{{ images.img.url }}" onclick="showModal('{{ images.img.url }}')" style="max-width: 100%; max-height: 100%"></div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="shopping-container">
+                        <div class="shopping-title">{{ object.title }}</div>
+                        <div class="shopping-desc">
+                            {{ object.description }}
+                            {% if user.is_superuser  %}
+                                <a href="{% url 'product-update' object.id %}">update</a>
+                            {% endif %}
+                        </div>
+
+                        <div class="shopping-info" style="background-color: #faf4f2">
+                            {% if object.material %}
+                                <div class="shopping-text">
+                                <div class="shopping-color-1">Material:</div>
+                                <div class="shopping-color-info">{{ object.material }}</div>
+                            </div>
+
+                            {% endif %}
+
+                            {% if object.weight %}
+                                <div class="shopping-text">
+                                <div class="shopping-color-1">Weight:</div>
+                                <div class="shopping-color-info">{{ object.weight }}lbs</div>
+                            </div>
+                            {% endif %}
+                            {% if object.length or object.height or object.width %}
+                                <div class="shopping-text">
+                                    <div class="shopping-color-1">Size:</div>
+                                    <div class="shopping-color-info">{{ object.length }}"L x {{ object.height }}"H x {{ object.width }}"W</div>
+                                </div>
+                            {% endif %}
+                                <div class="shopping-text">
+                                    <div class="shopping-color-1">Count:</div>
+                                    <div class="shopping-color-info">{{ object.count }}</div>
+                                </div>
+
+                        </div>
+
+                                {% if object.in_stock %}
+                                    <div class="product-stocks-product  instock">In stock</div>
+                                {% else %}
+                                    <div class="product-stocks-product  outofstock">Out of stock </div>
+                                {% endif %}
+                        {% if product.in_stock %}
+                        <form action="{% url 'add-product' %}" method="POST">
+                            {% csrf_token %}
+                        <div class="select-count">
+                            <input type="hidden", name="product", value="{{ object.id }}">
+                            <input type="hidden" id="price" value="{{ object.price }}">
+                            {% if user.is_authenticated %}
+
+                            <p class="shopping-desc">Total: <span id="total">{{ object.price }}</span>$</p>
+
+
+                            <div class="number" data-step="1" data-min="1" data-max="100">
+                                <input class="number-text" type="text" name="count" value="1" id="quantity">
+                                <a href="#" class="number-minus">−</a>
+                                <a href="#" class="number-plus">+</a>
+                            </div>
+
+                                <div class="clickbuy">
+                                    <input type="submit" class="payment", value="Add to cart">
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        </form>
+
+                        {% endif %}
+                    <div>
+{#<div id="image-modal" style="display:none; position:fixed; top:0; left:0; bottom:0; right:0; background-color: rgba(0,0,0,0.86); z-index: 9999;">#}
+{#  <img id="modal-image" src="" style="width:auto;max-height:80%;max-width:80%; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">#}
+{#</div>#}
+<div id="image-modal" style="display:none; position:fixed; top:0; left:0; bottom:0; right:0; background-color: rgba(0,0,0,0.86); z-index: 9999;">
+  <img id="modal-image" src="" style="width:auto;max-height:80%;max-width:80%; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">
+  <button id="prev-button" style="position: absolute; left: 20%; top: 50%; transform: translateY(-50%);background-color: #333; color: #fff; padding: 10px 15px; border: none; border-radius: 5px; font-size: large">❮</button>
+  <button id="next-button" style="position: absolute; right: 20%; top: 50%; transform: translateY(-50%);background-color: #333; color: #fff; padding: 10px 15px; border: none; border-radius: 5px; font-size: large">❯</button>
+<button id="close-button" style="position: absolute; top: 10%; right: 20%; display: flex; justify-content: center; align-items: center; cursor: pointer;transform: translateY(-50%);background-color: #333; color: #fff; padding: 10px 15px; border: none; border-radius: 5px;">╳</button>                    </div>
+    <script>
+    $(document).ready(function() {
+        $('body').on('click', '.number-minus, .number-plus', function(){
+            var $row = $(this).closest('.number');
+            var $input = $row.find('.number-text');
+            var step = $row.data('step');
+            var val = parseFloat($input.val());
+            if ($(this).hasClass('number-minus')) {
+                val -= step;
+            } else {
+                val += step;
+            }
+            if (val < 1) {
+                val = 1;
+            }
+            $input.val(val);
+            $input.change();
+            return false;
+        });
+
+        $('body').on('change', '.number-text', function(){
+            var $input = $(this);
+            var $row = $input.closest('.number');
+            var step = $row.data('step');
+            var min = parseInt($row.data('min'));
+            var max = parseInt($row.data('max'));
+            var val = parseFloat($input.val());
+            if (isNaN(val)) {
+                val = step;
+            } else if (min && val < min) {
+                val = min;
+            } else if (max && val > max) {
+                val = max;
+            }
+            $input.val(val);
+
+            var price = $('#price').val();
+            $('#total').text(price * val);
+        });
+    });
+</script>
+
+
+
+
+                        <div class="shopping-more-info">
+                            <div class="title-more-info">For more info contact us</div>
+                            <div class="more-contacts">
+                                <div class="mail-more-info">
+                                    <div class="icon-more-mail"></div>
+                                    {{ info.email }}
+                                </div>
+    
+                                <div class="telephone-more-info">
+                                    <div class="icon-more-telephone"></div>
+                                    {{ info.phone }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+
+
+
+
+
+<script>
+var images = [];
+{% for image in object.images.all %}
+  var img = new Image();
+  img.src = "{{ image.img.url }}";
+  img.addEventListener("click", function() {
+    showModal(this.src);
+  });
+  images.push(img);
+{% endfor %}
+
+var currentImageIndex = 0;
+
+function showModal(imageUrl) {
+  var modal = document.getElementById('image-modal');
+  var image = document.getElementById('modal-image');
+  var prevButton = document.getElementById('prev-button');
+  var nextButton = document.getElementById('next-button');
+  image.src = imageUrl;
+  modal.style.display = 'block';
+  document.body.style.overflow = "hidden";
+
+  prevButton.onclick = function(event) {
+    event.stopPropagation();
+    currentImageIndex--;
+    if (currentImageIndex < 0) {
+      currentImageIndex = images.length - 1;
+    }
+    image.src = images[currentImageIndex].src;  // Change here
+  };
+
+  nextButton.onclick = function(event) {
+    event.stopPropagation();
+    currentImageIndex++;
+    if (currentImageIndex >= images.length) {
+      currentImageIndex = 0;
+    }
+    image.src = images[currentImageIndex].src;  // Change here
+  };
+}
+
+document.getElementById("image-modal").addEventListener("click", function(){
+  this.style.display = "none";
+  document.body.style.overflow = "auto";
+});
+   var closeButton = document.getElementById('close-button');
+  closeButton.onclick = function(event) {
+    modal.style.display = "none";
+    document.body.style.overflow = "auto";
+  };
+
+</script>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load contact_info_tags %}
+{% get_contact_info as info %}
+
+{% block header_content %}
+            <div class="header-content">
+                <div class="header-content-text">
+                    <div class="header-title">
+                        {{ info.main_header }}
+                    </div>
+                    <div class="header-desc">
+                        {{ info.main_header_content }}
+                    </div>
+                </div>
+
+            </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <!-- SECTION: About Us-->
+    <section class="aboutus">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="image-aboutus"></div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="text-aboutus">
+                        <div class="text-content">
+                            <span class="headline">About us</span>
+                            {{ info.main_about }}
+                        </div>
+
+                        <a href="{% url 'about' %}" class="readmore">read more</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="info">
+        <div class="container content-index">
+            <div class="row">
+                <div class="col-md-6 col-6 right-content">
+                    <div class="text-info-content">
+                        <div class="text-info-1">
+                            {{ info.main_content_1 }}
+                        </div>
+
+                        <div class="text-info-2">
+                            {{ info.main_content_2 }}
+                        </div>
+                    </div>
+
+                    <div class="image-info"></div>
+                </div>
+
+                <div class="col-md-6 col-6">
+                    <div class="image-water"></div>
+                </div>
+            </div>
+        </div>
+        <div class="greenback"></div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <div class="container">
+        <div class="products-content">
+            <div class="content-header">
+                <h2 class="content-title">Products</h2>
+                <h6 class="content-desc">
+                    {{ info.main_products }}
+                </h6>
+            </div>
+
+            <div class="content">
+                <div class="owl-carousel owl-theme products-carousel">
+                    {% for object in object_list %}
+                    <div class="item">
+                        <div class="product">
+                            {% for image in object.images.all %}
+                                {% if forloop.first %}
+                                    <div class="product-image"><a href="{% url 'product-detail' object.id %}"><img src="{{ image.img.url }}" alt="" style="width: 100%;"></a></div>
+                                {% endif %}
+                            {% endfor %}
+
+                            <div class="product-body">
+                                <div class="product-name">{{ object.title }}</div>
+                                <div class="product-desc">{{ object.description|truncatechars:100 }}</div>
+                            </div>
+                        </div>
+
+{#                        <div class="product">#}
+{#                            <div class="product-image"></div>#}
+{#                            <div class="product-body">#}
+{#                                <div class="product-name">Products</div>#}
+{#                                <div class="product-desc">Ask CDCR San Quintin State Prison 2008. </div>#}
+{#                            </div>#}
+{#                        </div>#}
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <script>
+                    $('.products-carousel').owlCarousel({
+                        loop:true,
+                        margin:10,
+                        nav:true,
+                        responsive:{
+                            0:{
+                                items:2
+                            },
+                            600:{
+                                items:2
+                            },
+                            1000:{
+                                items:4
+                            }
+                        }
+                    })
+                </script>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block header_content %}
+            <div class="header-content header-pages">
+                <h1 class="namepage">Profile</h1>
+            </div>
+{% endblock %}
+{% block content %}
+    <div class="container">
+<div class="profile-container">
+    <div class="profile-info">
+        <div class="profile-header">
+            <h2>{{ object.first_name }} {{ object.last_name }}</h2>
+            <span>My discount : {{ object.discount }}</span>
+        </div>
+        <br>
+        <div class="profile-content">
+            <div class="profile-section">
+                <h4>Contact information</h4>
+                <ul>
+                    <li>
+                        <h5>Email:</h5>
+                        <span>{{ object.email }}</span>
+                    </li>
+                    <li>
+                        <h5>Phone:</h5>
+                        <span>{{ object.phone_number }}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="profile-section">
+                <h4>Company Information</h4>
+                <ul>
+                    <li>
+                        <h5>Company:</h5>
+                        <span>{{ object.company }}</span>
+                    </li>
+                    <li>
+                        <h5>Company Address:</h5>
+                        <span>{{ object.address }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <a href="{% url 'profile-update' object.id %}" style="margin: 0 auto;"><button class="modalbtn">Update</button></a>
+        <br>
+        {% if not object.from_google %}
+                <a href="{% url 'password_change' %}">Change password</a>
+        {% endif %}
+        <br>
+    </div>
+{% endblock %}

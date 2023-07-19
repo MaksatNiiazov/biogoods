@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  web:
+    image: ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}
+    container_name: ${CI_PROJECT_NAME}-${CI_ENVIRONMENT_NAME}
+    restart: always
+    ports:
+      - 127.0.0.1:${APP_PORT}:8000
+ #   env_file:
+ #      - .env

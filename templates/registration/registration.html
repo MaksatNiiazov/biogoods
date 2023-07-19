@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load account socialaccount %}
+
+{% block navigation %}
+
+{% endblock %}
+{% block content %}
+    <div class="container">
+      <div class="page">
+         <div class="page__login login login_registration">
+            <div class="login__container -container">
+               <div class="login__form">
+                  <form method="POST" class="login-form">
+                     {% csrf_token %}
+                     <div class="login-form__main">
+                        <div class="login-form__inputs">
+                           <div class="login-form__top">
+                               {% for field in form %}
+
+                                    {% for error in field.errors %}
+                                      <p style="color: red">{{ field.label }} {{ error }}</p>
+                                    {% endfor %}
+                                {% endfor %}
+                             <div class="mb-3">
+                                <input name="first_name"  type="text" class="form-control form-control-form" value="{{ form.first_name.value }}" placeholder="First name">
+                            </div>
+                            <div class="mb-3">
+                                <input name="last_name" type="text" class="form-control form-control-form" value="{{ form.last_name.value }}" placeholder="Last name">
+                            </div>
+                            <div class="mb-3">
+                                <input name="email" type="email" class="form-control form-control-form" value="{{ form.email.value }}" placeholder="E-mail">
+                            </div>
+                            <div class="mb-3">
+                                <input name="phone_number" type="text" class="form-control form-control-form" value="{{ form.phone_number.value }}" placeholder="Phone number">
+                            </div>
+                            <div class="mb-3">
+                                <input name="company" type="text" class="form-control form-control-form" value="{{ form.company.value }}" placeholder="Company">
+                            </div>
+                            <div class="mb-3">
+                                <input name="address" type="text" class="form-control form-control-form" value="{{ form.address.value }}" placeholder="Company address">
+                            </div>
+                            <div class="mb-3">
+                                <input name="password1" type="password" class="form-control form-control-form" placeholder="Password">
+                            </div>
+                            <div class="mb-3">
+                                <input name="password2" type="password" class="form-control form-control-form" placeholder="Repeat password">
+                            </div>
+
+                           </div>
+                        </div>
+                        <div class="login-form__actions">
+                            <div class="mb-3">
+                               <a href="{% provider_login_url "google" %}" class="google-auth"><i class="lab la-google-plus"></i> Continue with Google</a>
+                           </div>
+                           <button type="submit" class="modalbtn">REGISTRATION</button>
+
+                           <div class="login-form__reg">Already have un account? <a href="{% url 'login' %}" class="-link-form">LOGIN</a></div>
+                        </div>
+                     </div>
+                  </form>
+
+               </div>
+
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+    </div>
+{% endblock %}

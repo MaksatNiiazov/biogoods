@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block header_content %}
+            <div class="header-content header-pages">
+                <h1 class="namepage">My orders</h1>
+            </div>
+{% endblock %}
+{% block content %}
+    <!-- SECTION: Contact -->
+    <section class="info">
+        <div class="container content-cart">
+         {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+            {% for object in object_list %}
+                <div class="row order-content">
+                    <div class="orders-main">
+
+                        <div class="orders" data-type="1">
+
+                            <div class="number-order">Order #{{ object.id }}</div>
+                            <div class="informa">
+                                {% if object.status != 'pending' %}
+                                    <div class="status-order">{{ object.status }}</div>
+                                    <a href="{% url 'repeat-order' object.id %}" class="repeat-order">Repeat</a>
+                                    {% else  %}
+                                <a href="{% url 'order-delete' object.id %}" class="remove-order">Remove</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="order-view" type="1">
+                            <div class="row">
+                                    {% for products in object.products_in_order.all %}
+                                <div class="col-md-3">
+                                    <div class="product">
+                                        <div class="product-image">
+                                            {% for image in products.product.images.all %}
+                                                {% if forloop.first %}
+                                                    <img src="{{ image.img.url }}" alt="" style="width: 100%; max-height: 100%;">
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <div class="product-body">
+                                            <div class="product-name" style="line-height: 25px;">{{ products.product.title }}</div>
+                                            <div class="product-desc">{{ products.product.description|truncatechars:50 }}</div>
+                                            <div class="select-count-cart">
+                                                <div class="product-count">Count:{{ products.count }} </div>
+                                            </div>
+                                            <div class="goods-cost">{{ products.total_price }} $</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                    {% endfor %}
+                            </div>
+                            <div class="row">
+                                <div class="goods">
+                                    <div class="mb-5">
+                                        <div class="totalinfo">
+                                            <div class="totalcost"><b>Items: </b>{{ object.items }}</div>
+                                            <div class="totalcost"><b>Subtotal: </b>{{ object.subtotal }}</div>
+                                            <div class="totalcost"><b>Estimated tax to be collected:</b>{{ object.tax }}</div>
+                                            <div class="totalcost"><b>Discount: </b>{{ object.discount }}</div>
+                                            <div class="totalcost"><b>Grand Total: </b>{{ object.grand_total }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+       <script type="text/javascript">
+  $('.number-order').on('click', function() {
+    var dataType = $(this).closest('.orders').data('type');
+    $(this).closest('.order-content').find('.order-view[type="' + dataType + '"]').toggle();
+  });
+</script>
+
+    </section>
+    <style>
+    .messages li {
+        font-size: 40px;
+        color: green;
+        list-style: none;
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}

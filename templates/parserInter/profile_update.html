@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+
+    <div class="profile-container">
+        <h1>Edit Profile</h1>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'profile-update' object.id %}">
+            {% csrf_token %}
+                <div class="profileupdate">
+                <p>
+    <label for="id_first_name">First name:</label><br>
+    <input type="text" name="first_name" value="{{ object.first_name }}" maxlength="254" required="" id="id_first_name">
+  </p>
+  <p>
+    <label for="id_last_name">Last name:</label><br>
+    <input type="text" name="last_name" value="{{ object.last_name }}" maxlength="254" required="" id="id_last_name">
+  </p>
+  <p>
+    <label for="id_email">Email:</label><br>
+    <input type="email" name="email" value="{{ object.email }}" maxlength="254" required="" id="id_email">
+  </p>
+  <p>
+    <label for="id_phone_number">Phone number:</label><br>
+    <input type="text" name="phone_number" data-value="{{ object.phone_number }}" maxlength="254" required="" id="id_phone_number">
+
+  </p>
+
+  <p>
+    <label for="id_company">Company:</label><br>
+    <input type="text" name="company" data-value="{{ object.company }}" maxlength="254" required="" id="id_company">
+  </p>
+
+  <p>
+    <label for="id_address">Address:</label><br>
+    <input type="text" name="address" data-value="{{ object.address }}" maxlength="400" required="" id="id_address">
+  </p>
+                </div>
+            <input type="submit" value="Save changes"class="modalbtn"  style="margin-bottom: 20px">
+        </form>
+    </div>
+    </div>
+
+    <style>
+form label{margin-left: 10px}
+form input{border:1px solid rgba(66,63,63,0.5);border-radius:0;padding:5px 20px; width: 500px}
+
+    </style>
+{% endblock %}
+

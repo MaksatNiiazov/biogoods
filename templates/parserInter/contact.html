@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load contact_info_tags %}
+{% get_contact_info as info %}
+{% block header_content %}
+            <div class="header-content header-pages">
+                <h1 class="namepage">Contact us</h1>
+            </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <!-- SECTION: Contact -->
+    <section class="info">
+        <div class="container content-contact">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact-content-title">
+                        Contacts
+                    </div>
+
+                    <div class="contact-content-desc">
+                        {{ info.contact_page_content }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="contact-list">
+                        <div class="contact-element">
+                            <div class="icon-green-mail"></div>
+                            <div class="text-contact">{{ info.email }}</div>
+                        </div>
+
+                        <div class="contact-element">
+                            <div class="icon-green-telephone"></div>
+                            <div class="text-contact">{{ info.phone }}</div>
+                        </div>
+
+                        <div class="contact-element">
+                            <div class="icon-green-facebook"></div>
+                            <a href="{{ info.facebook_link }}"><div class="text-contact">Connect in Facebook</div></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+ {% endblock %}

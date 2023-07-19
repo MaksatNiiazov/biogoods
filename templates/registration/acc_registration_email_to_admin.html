@@ -1,0 +1,5 @@
+{% autoescape off %}
+    The user {{ user.username }}, was registered at {{ domain }}
+    http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+
+{% endautoescape %}

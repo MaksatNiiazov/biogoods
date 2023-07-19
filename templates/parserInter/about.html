@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load contact_info_tags %}
+{% get_contact_info as info %}
+{% block header_content %}
+            <div class="header-content header-pages">
+                <h1 class="namepage">About us</h1>
+            </div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- SECTION: About Us-->
+    <section class="info">
+        <div class="container content-about">
+            <div class="row mb-5">
+                <div class="title-page-about">
+                    {{ info.about_title }}
+                </div>
+                <div class="text-page-about">
+                    {{ info.about_content }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 col-6 right-content mobile-col-none">
+                    <p>{{ info.about_main_content|safe }}</p>
+                </div>
+
+                <div class="col-md-6 col-6 mobile-col-6">
+                    <div class="image-page-about"></div>
+                </div>
+            </div>
+        </div>
+        <div class="greenback" style="height: 386px;"></div>
+    </section>
+
+    <div class="container">
+        <section class="about-content-2">
+            <div class="about-text">
+                <div class="about-content-text">{{ info.about_products_title }}</div>
+                <div class="about-content-text2">
+                    {{ info.about_products_content }}
+                </div>
+            </div>
+    
+            <div class="about-images">
+                <div class="row">
+                    <div class="col-md-6 offset-md-3">
+                        <a href="{% url 'product-list' %}" class="about-img-content">
+                            <div class="about-content-image2"><img src="{% static '/image/page-about.jpg' %}" alt="" style="max-width: 100%; max-height: 100%"></div>
+                            <div class="about-content-imgtext">our products</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+{% endblock %}

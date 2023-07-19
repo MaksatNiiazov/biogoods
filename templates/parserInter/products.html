@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load contact_info_tags %}
+{% get_contact_info as info %}
+{% block header_content %}
+            <div class="header-content header-pages">
+                <h1 class="namepage">Products</h1>
+            </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <!-- SECTION: Contact -->
+    <section class="info">
+        <div class="container content-contact">
+            <div class="products-content">
+                <div class="content-header">
+                    <h2 class="content-title">Products</h2>
+                    <h6 class="content-desc">
+                        {{ info.products_content }}
+                    </h6>
+                </div>
+    
+                <div class="content">
+                        <div class=" product-content-flex" style="flex-wrap: wrap">
+
+                        {% for object in object_list %}
+                            <div class="item product-item-flex">
+                                <a href="{% url 'product-detail' object.id %}" class="product">
+                            {% for image in object.images.all %}
+                                {% if forloop.first %}
+                                    <div class="product-image"><img src="{{ image.img.url }}" alt="" style="width: 100%;object-fit: cover;"></div>
+                                {% endif %}
+                            {% endfor %}
+                                <div class="product-body">
+                                    <div class="product-name">{{ object.title }}</div>
+                                {% if object.in_stock %}
+                                    <div class="product-stocks instock">In stock</div>
+                                {% else %}
+                                    <div class="product-stocks outofstock">Out of stock</div>
+                                {% endif %}
+                                    <div class="product-desc">{{ object.description|truncatechars:100 }}</div>
+                                {% if user.is_authenticated and object.in_stock %}
+                                    <div class="goods-cost">{{ object.price }} $</div>
+                                {% endif %}
+                                </div>
+                                </a>
+                        </div>
+
+                        {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% for page in paginator.page_range %}
+        {% if page == page_obj.number %}
+            <span class="active">{{ page }}</span>
+        {% else %}
+            <a href="?page={{ page }}">{{ page }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+    </section>
+
+    <script>
+    $(document).ready(function () {
+    if ($(window).width() < 768) {
+        $('#list-view').attr('data-paginate-by', 20);
+    } else {
+        $('#list-view').attr('data-paginate-by', 40);
+    }
+});
+    </script>
+    <style>
+    @media only screen and (max-width: 767px) {
+    #list-view[data-paginate-by]::before {
+        content: "20";
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    #list-view[data-paginate-by]::before {
+        content: "40";
+    }
+}
+    </style>
+{% endblock %}
+
